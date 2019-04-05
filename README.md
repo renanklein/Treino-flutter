@@ -1,4 +1,4 @@
-# hello_retangle
+# List of things
 
 A new Flutter application.
 
