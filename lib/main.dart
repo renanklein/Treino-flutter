@@ -13,8 +13,14 @@ class UnitConverterApp extends StatelessWidget{
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Exercício",
+      theme: ThemeData(
+        primaryColor: Colors.grey[500],
+        textTheme: Theme.of(context).textTheme.apply(
+          bodyColor: Colors.black,
+          displayColor: Colors.grey[600]
+        ),
+      ),
       home: new Scaffold(
-        backgroundColor: Colors.green[100],
         body: new Center(
             child: CategoryRoute(),
         )
