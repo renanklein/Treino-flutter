@@ -1,4 +1,4 @@
-# hello_retangle
+# Unit Converter
 
 A new Flutter application.
 
