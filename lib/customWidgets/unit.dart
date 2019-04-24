@@ -13,7 +13,7 @@ class Unit{
 
   Unit.fromJson(Map jsonMap)
     :assert(jsonMap['name'] != null),
-     assert(jsonMap['convert'] != null),
+     assert(jsonMap['conversion'] != null),
     name = jsonMap['name'],
-    convert = jsonMap['convert'].toDouble();
+    convert = jsonMap['conversion'].toDouble();
 }

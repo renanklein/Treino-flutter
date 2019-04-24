@@ -5,16 +5,16 @@ class Category{
 
   final String rowName;
   final ColorSwatch backColor;
-  final Icon leftIcon;
+  final String iconPath;
   final List<Unit> units;
   const Category({
     @required this.rowName,
     @required this.backColor,
-    @required this.leftIcon,
+    @required this.iconPath,
     @required this.units
       }):assert(rowName != null),
         assert(backColor != null),
-        assert(leftIcon != null),
+        assert(iconPath != null),
         assert(units != null);
 
 

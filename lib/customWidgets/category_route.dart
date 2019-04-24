@@ -4,6 +4,7 @@ import 'package:hello_retangle/customWidgets/unit.dart';
 import 'package:hello_retangle/customWidgets/ConverterScreen.dart';
 import 'package:hello_retangle/customWidgets/backdrop.dart';
 import 'package:hello_retangle/customWidgets/category_Tile.dart';
+import 'package:hello_retangle/api.dart';
 
 import "dart:async";
 import 'dart:convert';
@@ -12,48 +13,85 @@ class _CategoryRouteState extends State<CategoryRoute>{
   Category _currentCategory;
   final _listCategories = <Category>[];
 
-
   @override
   Future<void> didChangeDependencies() async{
     super.didChangeDependencies();
 
     if(_listCategories.isEmpty){
-       await _retriveCategories();
+       await _retriveLocalCategories();
+       await _retrieveApiCategory();
     }
   }
 
-  Future<void> _retriveCategories() async{
+  Future<void> _retriveLocalCategories() async{
     final json = DefaultAssetBundle.of(context).loadString('assets/data/regular_units.json');
     final data = JsonDecoder().convert(await json);
+    print(data);
     var categoryIndex = 0;
+    if(data is! Map){
+      throw('Data retrived from the API is not a JSON !');
+    }
     data.keys.forEach((key){
-      if(data is! Map){
-        throw('Data retrived from the API is not a JSON !');
-      }
-
       final List<Unit> units = data[key].map<Unit>((dynamic data) => Unit.fromJson(data)).toList();
 
       var category = new Category(
           rowName: key,
           backColor: widget._baseColors[categoryIndex],
-          leftIcon: Icon(Icons.cake),
+          iconPath: widget._iconPaths[categoryIndex],
           units: units
       );
 
       setState(() {
         if(categoryIndex == 0){
-          this._defaultCategory = category;
+          print('Entrou');
+          _defaultCategory = category;
         }
 
-        this._listCategories.add(category);
+        _listCategories.add(category);
       });
       categoryIndex += 1;
     });
   }
 
+  Future<void> _retrieveApiCategory() async{
+    //Placeholder enquanto é carreega as unidades da currency
+    setState(() {
+      _listCategories.add(
+        new Category(
+          rowName: 'Currency',
+          backColor: widget._baseColors.last,
+          iconPath: 'assets/icons/currency.png',
+          units:[],
+        )
+      );
+    });
+
+    final _currencyUnits = await Api().getUnits('currency');
+
+    if(_currencyUnits != null){
+      final units  = <Unit>[];
+
+      for(var unit in _currencyUnits){
+        units.add(Unit.fromJson(unit));
+      }
+
+      setState(() {
+        _listCategories.removeLast();
+        _listCategories.add(
+          Category(
+            rowName: 'Currency',
+            backColor: widget._baseColors.last,
+            iconPath: 'assets/icons/currency.png',
+            units:units,
+          )
+        );
+      });
+    }
+  }
+
   void _onCategoryTap(Category category){
     setState(() {
-      this._currentCategory = category;
+      _currentCategory = category;
     });
   }
 
@@ -61,9 +99,11 @@ class _CategoryRouteState extends State<CategoryRoute>{
     if(deviceOrientation == Orientation.portrait){
       return ListView.builder(
         itemBuilder: (BuildContext context, int i) {
+          var _category = this._listCategories[i];
           return  Category_Tile(
               category: this._listCategories[i] ,
-              onTap: _onCategoryTap
+              onTap: _category.rowName == 'Currency' && _category.units.isEmpty ?
+                  null : _onCategoryTap,
           );
         },
         itemCount: this._listCategories.length,
@@ -98,7 +138,7 @@ class _CategoryRouteState extends State<CategoryRoute>{
     return new Backdrop(
       currentCategory: this._currentCategory == null ? this._defaultCategory : this._currentCategory,
       frontPanel: this._currentCategory == null ?
-          ConverterScreen(category: this._defaultCategory): ConverterScreen(category: this._currentCategory),
+        ConverterScreen(category: this._defaultCategory) : ConverterScreen(category: this._currentCategory),
       backPanel: listView,
       frontTitle: Text('Unit Conveter'),
       backTitle: Text('Select a category'),
@@ -107,16 +147,7 @@ class _CategoryRouteState extends State<CategoryRoute>{
 }
 class CategoryRoute extends StatefulWidget {
 
-//  final  _categoryNames = <String>[
-//    'Length',
-//    'Area',
-//    'Volume',
-//    'Mass',
-//    'Time',
-//    'Digital Storage',
-//    'Energy',
-//    'Currency',
-//  ];
+
 
   final _baseColors = <ColorSwatch>[
     ColorSwatch(0xFF6AB7A8, {
@@ -153,7 +184,16 @@ class CategoryRoute extends StatefulWidget {
       'error': Color(0xFF912D2D),
     }),
   ];
-
+  
+  final List<String> _iconPaths =[
+    'assets/icons/length.png',
+    'assets/icons/area.png',
+    'assets/icons/volume.png',
+    'assets/icons/mass.png',
+    'assets/icons/time.png',
+    'assets/icons/digital_storage.png',
+    'assets/icons/power.png'
+  ];
 
 
   @override

@@ -14,6 +14,7 @@ class UnitConverterApp extends StatelessWidget{
       debugShowCheckedModeBanner: false,
       title: "Exercício",
       theme: ThemeData(
+        fontFamily: 'Raleway',
         primaryColor: Colors.grey[500],
         textTheme: Theme.of(context).textTheme.apply(
           bodyColor: Colors.black,

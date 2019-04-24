@@ -2,6 +2,7 @@ import 'package:hello_retangle/customWidgets/unit.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:hello_retangle/customWidgets/category.dart';
+import 'package:hello_retangle/api.dart';
 
 class _ConverterScreenState extends State<ConverterScreen> {
 
@@ -11,6 +12,7 @@ class _ConverterScreenState extends State<ConverterScreen> {
   String _valueConverted = '';
   List<DropdownMenuItem> _userDropdownItems;
   bool _errorValidation = false;
+  bool _showErrorUI = false;
 
   final _inputKey = GlobalKey(debugLabel: 'inputText');
 
@@ -74,10 +76,20 @@ class _ConverterScreenState extends State<ConverterScreen> {
     return outputNum;
   }
 
-  void _updateConvertion(){
-    setState(() {
-      _valueConverted = _format(this._inputValue*(this._toValue.convert/this._fromValue.convert));
-    });
+  Future<void> _updateConvertion() async{
+    if(widget.category.rowName == 'Currency'){
+      final convert =  await Api().convert('currency', this._inputValue.toString(),this._fromValue.name , this._toValue.name);
+      if(convert == null){
+        setState(() {
+          this._showErrorUI = true;
+        });
+      }
+      setState(() {
+        this._valueConverted = _format(convert);
+      });
+    }else{
+      this._valueConverted = _format( _inputValue * (_toValue.convert / _fromValue.convert));
+    }
   }
 
   void _updateInputValue(String input){
@@ -157,6 +169,37 @@ class _ConverterScreenState extends State<ConverterScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    if(widget.category.units == null || (widget.category.rowName == 'Currency' && this._showErrorUI)){
+      return SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(16.0),
+          margin: EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.0),
+            color: widget.category.backColor['error'],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Icon(
+                Icons.warning,
+                size: 180.0,
+                color: Colors.white,
+              ),
+              Text(
+                'An connection error occured!',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headline.copyWith(
+                  color: Colors.white,
+                )
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     final input = Padding(
       padding: EdgeInsets.all(16.0),

@@ -10,8 +10,7 @@ class Category_Tile extends StatelessWidget{
   const Category_Tile({
     @required this.category,
     @required this.onTap,
-  }):assert(category != null),
-    assert(onTap != null);
+  }):assert(category != null);
 
 //  void _navigateToConverter(BuildContext context){
 //    if(Navigator.of(context).canPop()){
@@ -44,7 +43,7 @@ class Category_Tile extends StatelessWidget{
   Widget build(BuildContext context) {
     // TODO: implement build
     return new Material(
-      color: Colors.transparent,
+      color: onTap == null ? Color.fromRGBO(50, 50, 50, 0.2) : Colors.transparent,
       child: new Container(
         height: 100.00,
         padding: EdgeInsets.all(8.0),
@@ -52,7 +51,7 @@ class Category_Tile extends StatelessWidget{
             highlightColor: this.category.backColor['highlight'],
             splashColor: this.category.backColor['splash'],
             borderRadius: BorderRadius.all(Radius.circular(50.00)),
-            onTap: () => onTap(category),
+            onTap: onTap == null ? null : () => onTap(category),
             child: new Padding(
               padding: EdgeInsets.all(16.00),
               child:  new Row(
@@ -60,7 +59,7 @@ class Category_Tile extends StatelessWidget{
                 children : <Widget>[
                   new Padding(
                       padding: EdgeInsets.only(right: 16.00),
-                      child:  this.category.leftIcon
+                      child:  Image.asset(category.iconPath),
                   ),
                   new Center(
                     child: new Text(
